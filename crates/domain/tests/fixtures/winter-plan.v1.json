@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "semester_id": "winter-2026",
+  "calendar_revision": 1,
+  "timetable": {
+    "courses": [
+      { "code": "CSE1001", "name": "Programming" },
+      { "code": "MAT1001", "name": "Mathematics" }
+    ],
+    "grid": {
+      "Mon": ["CSE1001", "MAT1001", null, null, null, null, null],
+      "Tue": ["CSE1001", null, null, null, null, null, null],
+      "Wed": ["MAT1001", null, null, null, null, null, null],
+      "Thu": ["CSE1001", null, null, null, null, null, null],
+      "Fri": ["CSE1001", "MAT1001", null, null, null, null, null]
+    }
+  },
+  "attendance": {
+    "as_of": "2026-11-20",
+    "attended": { "CSE1001": 4, "MAT1001": 3 }
+  },
+  "leave": [
+    { "kind": "slot", "date": "2026-11-21", "slot": 0 }
+  ]
+}

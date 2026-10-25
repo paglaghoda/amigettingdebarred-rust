@@ -1,0 +1,46 @@
+{
+  "schema_version": 1,
+  "revision": 1,
+  "id": "winter-2026",
+  "label": "Winter Semester 2026-27",
+  "batch_label": "All batches",
+  "batch_description": "Common for all batches",
+  "start_date": "2026-11-16",
+  "end_date": "2027-03-31",
+  "last_instructional_day": "2027-03-09",
+  "minimum_percentage": 75,
+  "holidays": {
+    "2026-12-25": "Christmas",
+    "2027-01-01": "New Year",
+    "2027-01-11": "Pongal break",
+    "2027-01-12": "Pongal break",
+    "2027-01-13": "Pongal break",
+    "2027-01-14": "Pongal break",
+    "2027-01-15": "Pongal break",
+    "2027-01-26": "Republic Day",
+    "2027-02-18": "Advitya '27 fest — no classes",
+    "2027-02-19": "Advitya '27 fest — no classes",
+    "2027-02-20": "Advitya '27 fest — no classes",
+    "2027-03-06": "Maha Shivratri"
+  },
+  "working_saturdays": {
+    "2026-11-21": "Fri",
+    "2026-12-12": "Fri"
+  },
+  "day_notes": {
+    "2026-11-21": "Remote learning (online)",
+    "2026-12-12": "Remote learning (online)",
+    "2026-11-24": "Guru Nanak Jayanti (sectional holiday)",
+    "2027-03-05": "Remote learning (online)"
+  },
+  "exam_windows": [
+    { "checkpoint_id": "cat1", "from": "2026-12-15", "to": "2026-12-23", "note": "CAT-1 exams" },
+    { "checkpoint_id": "cat2", "from": "2027-02-05", "to": "2027-02-13", "note": "CAT-2 exams" },
+    { "checkpoint_id": "fat", "from": "2027-03-11", "to": "2027-03-31", "note": "Term end exams" }
+  ],
+  "checkpoints": [
+    { "id": "cat1", "label": "CAT-1", "start_date": "2026-12-15" },
+    { "id": "cat2", "label": "CAT-2", "start_date": "2027-02-05" },
+    { "id": "fat", "label": "Term end exams", "start_date": "2027-03-11" }
+  ]
+}

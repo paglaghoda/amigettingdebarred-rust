@@ -3,3 +3,7 @@
 .env
 .env.*
 !.env.example
+/crates/web/dist/
+/supabase/.temp/
+/supabase/.branches/
+/scripts/__pycache__/

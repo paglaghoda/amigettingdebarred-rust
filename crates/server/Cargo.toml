@@ -1,0 +1,31 @@
+[package]
+name = "debarred-server"
+version = "0.1.0"
+edition.workspace = true
+
+[dependencies]
+debarred-domain = { path = "../domain" }
+debarred-web = { path = "../web", features = ["ssr"] }
+axum = { version = "0.8", default-features = false, features = ["json", "query", "tokio", "http1", "matched-path"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "net", "signal", "time", "sync"] }
+tower-http = { version = "0.6", features = ["timeout", "fs"] }
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio-rustls", "postgres", "chrono", "uuid", "json", "migrate", "macros"] }
+reqwest = { version = "0.12", default-features = false, features = ["json", "rustls-tls", "stream"] }
+chrono = { workspace = true, features = ["clock"] }
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+uuid = { version = "1", features = ["v4", "serde"] }
+url = "2"
+base64 = "0.22"
+sha2 = "0.10"
+aes-gcm = "0.10"
+rand = "0.8"
+subtle = "2"
+cookie = "0.18"
+tracing = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter", "fmt"] }
+
+[dev-dependencies]
+http-body-util = "0.1"
+tower = { version = "0.5", features = ["util"] }

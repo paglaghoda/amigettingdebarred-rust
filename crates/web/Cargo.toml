@@ -1,0 +1,26 @@
+[package]
+name = "debarred-web"
+version = "0.1.0"
+edition.workspace = true
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[features]
+default = []
+ssr = ["leptos/ssr"]
+hydrate = ["leptos/hydrate", "dep:wasm-bindgen", "dep:wasm-bindgen-futures", "dep:web-sys", "dep:js-sys", "dep:gloo-net", "dep:gloo-timers"]
+
+[dependencies]
+debarred-domain = { path = "../domain" }
+leptos = { version = "0.8", default-features = false }
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+base64 = "0.22"
+wasm-bindgen = { version = "0.2", optional = true }
+wasm-bindgen-futures = { version = "0.4", optional = true }
+js-sys = { version = "0.3", optional = true }
+web-sys = { version = "0.3", optional = true, features = ["Window", "Document", "Location", "History", "Storage", "HtmlInputElement", "HtmlSelectElement", "HtmlTextAreaElement", "File", "FileList", "Blob", "FileReader", "ProgressEvent", "Event", "EventTarget", "KeyboardEvent", "BeforeUnloadEvent", "StorageEvent", "Crypto", "AbortController", "AbortSignal", "RequestCredentials", "HtmlAnchorElement", "HtmlElement", "Element", "Node", "BlobPropertyBag", "Url", "console"] }
+gloo-net = { version = "0.6", default-features = false, features = ["http", "json"], optional = true }
+gloo-timers = { version = "0.3", features = ["futures"], optional = true }

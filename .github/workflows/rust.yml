@@ -1,4 +1,4 @@
-name: Rust domain
+name: Rust application
 
 on:
   push:
@@ -10,6 +10,22 @@ permissions:
 jobs:
   check:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: debarred_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d debarred_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:5432/debarred_test
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
@@ -22,5 +38,36 @@ jobs:
       - run: cargo fmt --all -- --check
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - run: cargo test --workspace --locked
+      - run: cargo clippy -p debarred-web --no-default-features --features hydrate --target wasm32-unknown-unknown --locked -- -D warnings
+      - run: python3 -m unittest discover -s scripts -p 'test_*.py' -v
+      - run: psql postgresql://postgres:postgres@127.0.0.1:5432/debarred_test -v ON_ERROR_STOP=1 -c 'CREATE ROLE anon; CREATE ROLE authenticated;'
+      - run: cargo test -p debarred-server --locked -- --ignored --test-threads=1
+      - name: Migration PostgreSQL integration tests
+        run: cargo test -p debarred-migrate --locked -- --ignored --test-threads=1
+      - run: cargo build --release -p debarred-server --locked
       - run: cargo build -p debarred-domain --lib --example wasm_smoke --release --target wasm32-unknown-unknown --locked
       - run: node crates/domain/tests/wasm-smoke.cjs
+      - run: cargo install wasm-bindgen-cli --version 0.2.129 --locked
+      - run: sh scripts/build-web.sh
+      - run: npm install --prefix .tools/browser --no-audit --no-fund playwright@1.64.1
+      - run: .tools/browser/node_modules/.bin/playwright install --with-deps chromium
+      - name: Browser SSR, sandbox, and mocked API contract tests
+        run: node scripts/browser-tests.cjs
+        env:
+          BROWSER_TEST_BINARY: target/release/debarred-server
+      # Artifact integrity only; manual release attestations remain an operator gate.
+      - name: Generate release artifact manifest
+        run: python3 scripts/release.py manifest --output .tools/release/manifest.json
+      - uses: actions/upload-artifact@v4
+        with:
+          name: release-manifest
+          path: .tools/release/manifest.json
+          include-hidden-files: true
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: local-ui-screenshots
+          path: .tools/screenshots/*.png
+          include-hidden-files: true
+          if-no-files-found: ignore

@@ -1,0 +1,17 @@
+**
+!Cargo.toml
+!Cargo.lock
+!crates/
+!crates/domain/
+!crates/domain/**
+!crates/migrate/
+!crates/migrate/**
+!crates/server/
+!crates/server/**
+!crates/web/
+!crates/web/**
+crates/web/dist/
+crates/web/target/
+!scripts/
+!scripts/build-web.py
+!scripts/local.py

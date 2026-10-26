@@ -1,0 +1,15 @@
+[package]
+name = "debarred-migrate"
+version = "0.1.0"
+edition.workspace = true
+publish = false
+
+[dependencies]
+debarred-domain = { path = "../domain" }
+chrono.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+uuid = { version = "1", features = ["v4", "serde"] }
+sha2 = "0.10"
+sqlx = { version = "0.8", default-features = false, features = ["runtime-tokio-rustls", "postgres", "uuid", "json", "migrate", "macros"] }
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "time", "sync"] }

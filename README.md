@@ -1,12 +1,72 @@
 # AmIGettingDebarred — Rust rebuild
 
-Phase 1: a deterministic, validated attendance engine shared by the future Rust
-server and Rust/WASM frontend. The existing app in `amigettingdebarred-main/` is
-unchanged and remains the design/behaviour reference.
+Phases 1–4: a deterministic shared attendance engine, Rust HTTP backend,
+server-rendered Leptos frontend with browser Wasm hydration, and account lifecycle,
+offline migration, operations, performance, and release tooling. Supabase handles
+authentication; Postgres stores versioned plans; optional AI only extracts intent
+or timetable drafts. The existing app in `amigettingdebarred-main/` is unchanged and
+remains the design/behaviour reference; it was not included in the Phase 1 Git
+commit.
 
-**This is not yet a replacement web app.** Authentication, persistence, HTTP
-endpoints, and the new UI belong to later phases. This crate does not depend on
-Clerk, Supabase, Lovable, React, a system clock, or any network service.
+The replacement uses no Clerk, Lovable gateway, React, or Node production runtime.
+The domain crate remains pure and network-free; the same Rust calculations run
+on the server and in the browser. Existing production credentials/data are not
+needed for local development.
+
+## Phase status and guides
+
+- **Phase 1 — domain engine:** deterministic attendance calculations, versioned
+  calendar/plan contracts, and native/WASM parity. [Rules and handoff](docs/phase-1.md).
+- **Phase 2 — backend:** Supabase sessions, private Postgres persistence, projections,
+  quotas, and optional AI. [Backend guide](docs/phase-2.md).
+- **Phase 3 — frontend:** Leptos SSR/hydration, device drafts, conflict-aware cloud
+  saves, and a credential-free sandbox. [Local development](docs/local-development.md).
+- **Phase 4 — launch preparation:** account export/deletion and privacy UI,
+  operator-reviewed offline import/rollback, admission control/private metrics,
+  local benchmarks, and an offline release gate. See
+  [Account lifecycle](docs/account-lifecycle.md), [Migration](docs/migration.md),
+  [Operations](docs/operations.md), [Release](docs/release.md), and
+  [Performance](docs/performance.md).
+
+**Launch remains blocked, not production-verified.** Local synthetic tests,
+benchmarks, and backup/restore drills do not verify the official calendar, live
+Google login, a real Supabase Auth journey/local stack, production backups, or a
+production deployment. Manual evidence and operator review are still required;
+no legacy identity/plan migration has been performed. Phase 4 tooling is not
+release approval. The operations guide retains module-level integration notes;
+the current executable wires account routes and operations controls, and readiness
+uses the storage schema/privilege probe.
+
+## Try the app locally
+
+Frontend assets have been built in this checkout. To rebuild and start the
+credential-free, device-only preview:
+
+```sh
+sh scripts/build-web.sh
+python3 scripts/local.py preview
+```
+
+Open **http://localhost:3000** and choose **Try local sandbox**. It is clearly
+labelled: drafts stay on this device, with no authenticated cloud saves. Ctrl-C
+stops the server. No production `.env` is read by these commands.
+
+For actual local Supabase Auth/Postgres, first install/start Docker, then:
+
+```sh
+python3 scripts/local.py start
+python3 scripts/local.py seed
+python3 scripts/local.py run
+```
+
+The local password form uses the disposable account documented in
+**[Local development](docs/local-development.md)**. Supabase CLI and wasm-bindgen
+are installed under ignored `.tools/` on this checkout; Docker is still missing,
+so the real local Supabase stack has not been exercised here. Database/backend
+tests use disposable native Postgres and mock auth providers instead.
+
+For backend setup, environment variables, API contracts, database privileges,
+and security/deployment notes, see **[Phase 2 guide](docs/phase-2.md)**.
 
 ## Layout
 
@@ -25,13 +85,37 @@ crates/domain/
   tests/fixtures/winter-plan.v1.json  Example input contract
   tests/wasm-smoke.cjs                Development-only WASM runtime harness
 
-docs/phase-1.md                       Rules, deliberate changes, Phase 2 handoff
+crates/server/
+  src/                               Axum API, Supabase sessions, SQLx, helper
+  migrations/                        Private tables and access restrictions
+  tests/                             Real Postgres, OAuth, and HTTP tests
+crates/migrate/                      Offline legacy validation/import/rollback CLI
+
+.env.example                         Required/optional server configuration
+crates/web/
+  src/                               Leptos views, shared-engine UI state, browser I/O
+  public/                            Self-hosted CSS, images, fonts, bootstrap
+  dist/                              Generated WASM/JS and precompressed assets (ignored)
+supabase/config.toml                 Local-only Supabase project configuration
+scripts/local.py                     Isolated local stack / preview workflow
+scripts/build-web.sh                 Browser WASM and assets build
+scripts/browser-tests.cjs            Chrome/Playwright regression suite
+Dockerfile                           Non-root server + frontend image
+
+docs/phase-1.md                       Domain rules and deliberate changes
+docs/phase-2.md                       Backend setup, API, auth, persistence
+docs/local-development.md             Local workflows, safety, and test boundaries
+docs/account-lifecycle.md             Account export, erasure, pending identity work
+docs/migration.md                     Offline migration and conservative rollback
+docs/operations.md                    Admission, private metrics, deployment checklists
+docs/release.md                       Offline release gate and backup drill boundaries
+docs/performance.md                   Local measurements, not production guarantees
 ```
 
 ## Run
 
 Requires stable Rust and its `rustfmt`/`clippy` components. Node is only needed to
-execute the development WASM smoke test; it is not used by the engine itself.
+execute development WASM smoke/browser tests; it is not a production dependency.
 Run all commands from this workspace root, **not** from the old app directory.
 
 ```sh
@@ -73,11 +157,13 @@ node crates/domain/tests/wasm-smoke.cjs
 
 The Node harness executes the **compiled Rust WASM**, checking fixture results,
 leave deduplication, serialization, and IST midnight behaviour. Full exhaustive
-and property tests run natively. This is not a frontend or a public JS API; Leptos
-will consume the library directly in Phase 3.
+and property tests run natively. This harness is not a frontend or a public JS API;
+the Phase 3 Leptos frontend consumes the domain library directly.
 
-GitHub Actions repeats formatting, Clippy, native tests, WASM compilation, and
-the WASM runtime smoke test. `Cargo.lock` is checked in for reproducible builds.
+GitHub Actions repeats formatting, Clippy, native tests, real PostgreSQL tests,
+release server compilation, WASM compilation, and the WASM runtime smoke test.
+`Cargo.lock` is checked in for reproducible builds. Database tests are explicitly
+ignored by the default test command; the Phase 2 guide explains how to run them.
 
 ## Domain API
 
